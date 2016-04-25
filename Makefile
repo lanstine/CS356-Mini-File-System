@@ -1,23 +1,11 @@
-all: BDS BDC_command BDC_random IDS FS FC
+all: disk_test
+
+disk_test: src/disk_test.c disk_mgr
+	gcc -o bin/disk_test src/disk_test.c src/header.h src/utils.c
+
+disk_mgr: src/disk_mgr.c src/header.h src/utils.c
+	gcc -o bin/disk_mgr src/disk_mgr.c src/header.h src/utils.c
 
 clean:
 	rm -f bin/*
-
-BDS: src/BDS.c src/cse356header.h
-	g++ src/BDS.c src/cse356header.h -o bin/BDS
-
-BDC_command: src/BDC_command.c src/cse356header.h
-	g++ src/BDC_command.c src/cse356header.h -o bin/BDC_command
-
-BDC_random: src/BDC_random.c src/cse356header.h
-	g++ src/BDC_random.c src/cse356header.h -o bin/BDC_command
-
-IDS: src/IDS.c src/cse356header.h
-	g++ src/IDS.c src/cse356header.h -o bin/IDS
-
-FS: src/FS.c src/cse356header.h
-	g++ src/FS.c src/cse356header.h -o bin/FS
-
-FC: src/FC.c src/cse356header.h
-	g++ src/FC.c src/cse356header.h -o bin/FC
 
