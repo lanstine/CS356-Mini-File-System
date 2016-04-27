@@ -1,8 +1,5 @@
-#include "header.h"
+#include "utils.h"
 
-#define BLOCKSIZE 512
-#define CYLINDERS 128
-#define SECTORS 32
 #define DELAY 1
 
 static int fd, num = 0, track = 0, delay = 0;
@@ -50,10 +47,11 @@ static void disk_init(void)
 static int get_offset(unsigned int c, unsigned int s)
 {
     if (c >= CYLINDERS || s >= SECTORS) {
+        fprintf(stderr, "c = %d or s = %d out or range.\n", c, s);
         return -1;
     } else {
-        usleep(DELAY*abs(track-c));
-        delay += DELAY*abs(track-c);
+        delay = DELAY*abs(track-c);
+        usleep(delay);
         track = c;
         return BLOCKSIZE * (c*SECTORS+s);
     }
@@ -62,7 +60,7 @@ static int get_offset(unsigned int c, unsigned int s)
 static void send_info(void)
 {
     init_str(sock);
-    cat_str(sock, "Disk Info:\t");
+    cat_str(sock, "Disk Info:\n\t");
     cat_int(sock, CYLINDERS);
     cat_str(sock, " CYLINDERS\t");
     cat_int(sock, SECTORS);
@@ -80,6 +78,7 @@ static void read_disk(unsigned int c, unsigned int s)
         printf("failed to call lseek()");
         num = 0;
     } else {
+        printf("\tdelay = %d ms\n", delay);
         num = BLOCKSIZE;
     }
     init_str(sock);
@@ -87,7 +86,7 @@ static void read_disk(unsigned int c, unsigned int s)
     cat_int(sock, num);
     send_str(sock);
     while (num > 0) {
-        int len = BUFFER_SIZE-1;
+        int len = BUFFER_SIZE;
 
         if (len > num) {
             len = num;
@@ -118,14 +117,16 @@ static void write_disk(unsigned int c, unsigned int s, int n)
     offset = get_offset(c, s);
     end = offset + BLOCKSIZE;
     if (offset < 0 || lseek(fd, offset, SEEK_SET) < 0) {
-        printf("failed to call lseek()");
+        printf("failed to call lseek()\n");
         n = 0;
+    } else {
+        printf("\tdelay = %d ms\n", delay);
     }
     while (--n >= 0) {
         int len; 
 
         send_msg(sock, "EXPECT");
-        len = get_data(sock, BUFFER_SIZE-1);
+        len = get_data(sock, BUFFER_SIZE);
         if (len < 0) {
             err_exit("failed to read from socket");
         } else {
