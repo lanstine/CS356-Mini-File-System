@@ -2,16 +2,16 @@
 
 static buf_sock *sock;
 
-static free_lst map;
+static bitmap_t map;
 
-static unsigned char get_state(signed short id)
+unsigned char get_state(signed short id)
 {
     if (id < 4) {
         return F_OCCUPIED;
     } else {
         unsigned char byte;
 
-        byte = map.bmap[id>>2];
+        byte = map.free_lst[id>>2];
         byte >>= ((id&3)<<1);
         return byte & 3;
     }
@@ -23,12 +23,12 @@ static void set_state(signed short id, unsigned char state)
         unsigned char mask;
 
         mask = (3 << ((id&3)<<1));
-        map.bmap[id>>2] &= (~mask);
-        map.bmap[id>>2] |= (state&mask);
+        map.free_lst[id>>2] &= (~mask);
+        map.free_lst[id>>2] |= (state&mask);
     }
 }
 
-signed short get_free_zone(unsigned char state)
+signed short get_free_id(unsigned char state)
 {
     int id;
 
@@ -41,16 +41,11 @@ signed short get_free_zone(unsigned char state)
     return -1;
 }
 
-void set_free_zone(signed short id)
+void set_free_id(signed short id)
 {
     if (id >= 4) {
         set_state(id, UNOCCUPIED);
     }
-}
-
-void format(void)
-{
-    bzero((char*)&map, 256);
 }
 
 #define CACHE_SIZE 8
@@ -104,6 +99,16 @@ static block_t *get_block(unsigned short id)
     return b_cache[start_idx] = target;
 }
 
+void format(void)
+{
+    block_t block;
+    
+    bzero((char*)&block, BLOCKSIZE);
+    write_block(sock, &block);
+    bzero((char*)&map, 256);
+    set_state(4, D_OCCUPIED);
+}
+
 static void read_map(void)
 {
     block_t *block = get_block(0);
@@ -112,7 +117,7 @@ static void read_map(void)
 
     byte = (unsigned char*)block;
     while (idx < 256) {
-        map.bmap[idx++] = *(byte++);
+        map.free_lst[idx++] = *(byte++);
     }
 }
 
@@ -124,7 +129,7 @@ static void write_map(void)
 
     byte = (unsigned char*)block;
     while (idx < 256) {
-        *(byte++) = map.bmap[idx++];
+        *(byte++) = map.free_lst[idx++];
     }
     write_block(sock, block);
 }
@@ -176,6 +181,7 @@ void write_zone(signed short id, zone_t *zone)
                 *(dest++) = *(src++);
             }
         }
+        write_block(sock, block);
     }
 }
 

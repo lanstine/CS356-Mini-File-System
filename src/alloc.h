@@ -8,8 +8,9 @@
 #define F_OCCUPIED 2
 #define I_OCCUPIED 3
 
-signed short get_free_zone(unsigned char state);
-void set_free_zone(signed short id);
+unsigned char get_state(signed short id); 
+signed short get_free_id(unsigned char state);
+void set_free_id(signed short id);
 void format(void);
 
 void alloc_init(int port_no);

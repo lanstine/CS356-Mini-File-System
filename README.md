@@ -43,11 +43,11 @@ A Mini File System based on a pseudo disk manager, where the "disk" is simulated
 
 
 
-## File System Reply Code
+## File System Reply Codes
 
 (1) 0: Task has been done.
 
-(2) 1: Waiting for one buffer of data.
+(2) 1: Waiting for one buffer of data. After client sends data, server replies with 0 code.
 
 (3) 2: Requesting to send data, which should be responded with "ACK". 
 Then server would send the total number of bytes that will be sent, 
@@ -60,6 +60,7 @@ and every time client sends an "EXPECT" server would respond with one buffer of 
 (6) -1: Command is invalid.
 
 
+##
 
 BTW, I have a similar socket programming project [here](https://github.com/DevinZ1993/Notebook-of-SJTU/tree/master/courses/FTP), which is an FTP client-server system written in Java.
 

@@ -48,24 +48,37 @@ void cat_int(buf_sock *sock, int val);
 int send_str(buf_sock *sock);
 
 typedef struct {
-    unsigned char bmap[256];
-} free_lst;
+    unsigned char free_lst[256];
+} bitmap_t;
 
 typedef struct {
     signed short parent;
-    signed short subs[30];
+    signed short mode;
+    signed short owner;
+    struct {
+        signed short id;
+        signed char name[4];
+    } subs[8];
     signed short next;
+    unsigned long time;
 } dentry_t;
+
+typedef struct {
+    signed short parent;
+    struct {
+        signed short id;
+        signed char name[4];
+    } subs[10];
+    signed short next;
+} dir_zone_t;
 
 typedef struct {
     signed short parent; 
     signed short mode;
     signed short owner;
-    signed long time;
-    signed long size;
-    signed short first[20];
-    signed short second[3];
-    signed short third[2];
+    signed short ptrs[24];  /* 20, 2, 2 */
+    signed int size;
+    unsigned long time;
 } inode_t;
 
 typedef struct {
@@ -78,9 +91,10 @@ typedef struct {
 
 typedef union {
     dentry_t dentry_val;
+    dir_zone_t dzone_val;
     inode_t inode_val;
-    data_zone_t dzone_val;
-    idx_zone_t izone_val;
+    data_zone_t data_zone_val;
+    idx_zone_t idx_zone_val;
 } zone_t;
 
 typedef struct {
