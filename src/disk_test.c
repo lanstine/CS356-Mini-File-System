@@ -12,7 +12,6 @@ static void err_exit(char *msg)
     exit(1);
 }
 
-
 static void cmd_test(void)
 {
     size_t cmd_size = 128;
@@ -86,7 +85,7 @@ int main(int argc, char *argv[])
             block_t *a = (block_t*) calloc(1, sizeof(block_t));
             block_t *b = (block_t*) calloc(1, sizeof(block_t));
             int test;
-            
+
             for (test=0; test<100; test++) {
                 char *byte, *bbyte;
 

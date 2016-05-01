@@ -30,6 +30,7 @@ typedef struct {
     signed char buffer[BUFFER_SIZE];
 } buf_sock;
 
+void itoa(char *str, long val);
 void get_toks(char *str, char **toks, int size_of_toks);
 
 buf_sock *gen_server_sock(int port_no);
@@ -44,12 +45,14 @@ int get_data(buf_sock *sock, int len);
 
 void init_str(buf_sock *sock);
 void cat_str(buf_sock *sock, char *str);
-void cat_int(buf_sock *sock, int val);
+void cat_int(buf_sock *sock, long val);
 int send_str(buf_sock *sock);
 
 typedef struct {
     unsigned char free_lst[256];
 } bitmap_t;
+
+#define NUM_OF_DENTRY_SUBS 4
 
 typedef struct {
     signed short parent;
@@ -57,18 +60,20 @@ typedef struct {
     signed short owner;
     struct {
         signed short id;
-        signed char name[4];
-    } subs[8];
+        signed char name[10];
+    } subs[NUM_OF_DENTRY_SUBS];
     signed short next;
     unsigned long time;
 } dentry_t;
+
+#define NUM_OF_DZONE_SUBS 5
 
 typedef struct {
     signed short parent;
     struct {
         signed short id;
-        signed char name[4];
-    } subs[10];
+        signed char name[10];
+    } subs[NUM_OF_DZONE_SUBS];
     signed short next;
 } dir_zone_t;
 
@@ -76,10 +81,12 @@ typedef struct {
     signed short parent; 
     signed short mode;
     signed short owner;
+    signed short size;
     signed short ptrs[24];  /* 20, 2, 2 */
-    signed int size;
     unsigned long time;
 } inode_t;
+
+#define MAX_FILE_LEN 8340
 
 typedef struct {
     signed char data[64];

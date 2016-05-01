@@ -11,6 +11,7 @@
 unsigned char get_state(signed short id); 
 signed short get_free_id(unsigned char state);
 void set_free_id(signed short id);
+
 void format(void);
 
 void alloc_init(int port_no);

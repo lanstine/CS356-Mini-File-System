@@ -16,7 +16,7 @@ static void cmd_loop(void)
 {
     size_t cmd_size = 128;
     char *cmd = (char*)malloc(cmd_size+1);
-    
+
     while(1) {
         int reply;
 
@@ -36,25 +36,21 @@ static void cmd_loop(void)
                 printf("%s: execution failed.\n", cmd);
             }
         } else if (2 == reply) {
-            int num;
+            int n;
 
             send_msg(sock, "ACK");
-            num = atoi(get_msg(sock));
-            while (num >= 0) {
-                int len;
+            n = atoi(get_msg(sock));
+            while (n > 0) {
+                char *msg;
 
                 send_msg(sock, "EXPECT");
-                len = get_data(sock, num);
-                if (len < 0) {
+                msg = get_msg(sock);
+                if (NULL == msg) {
                     err_exit("failed to read from socket");
                 } else {
-                    int i;
-
-                    for (i=0; i<len; i++) {
-                        printf("%c", sock->buffer[i]);
-                    }
+                    printf("%s", msg);
                     fflush(stdout);
-                    num -= len;
+                    n--;
                 }
             }
             printf("\n");

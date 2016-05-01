@@ -17,5 +17,7 @@ path_t *get_path(char *path);
 
 char *rm_name(char **path);
 
+void cwd_to(path_t *path);
+
 #endif /* PATH_HEADER */
 

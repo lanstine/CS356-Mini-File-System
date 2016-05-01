@@ -1,8 +1,23 @@
 #include "alloc.h"
 
+
+#define get_c(id) (((id)*ZONESIZE/BLOCKSIZE) / SECTORS)
+#define get_s(id) (((id)*ZONESIZE/BLOCKSIZE) % SECTORS)
+
 static buf_sock *sock;
 
 static bitmap_t map;
+
+#define CACHE_SIZE 8
+#define CACHE_GRP_SZ 2
+#define CACHE_GRP_NUM (CACHE_SIZE/CACHE_GRP_SZ)
+
+static block_t *b_cache[CACHE_SIZE] = {};
+
+static void set_state(signed short id, unsigned char state);
+static void free_cache(void);
+static block_t *get_block(unsigned short id);
+
 
 unsigned char get_state(signed short id)
 {
@@ -24,7 +39,7 @@ static void set_state(signed short id, unsigned char state)
 
         mask = (3 << ((id&3)<<1));
         map.free_lst[id>>2] &= (~mask);
-        map.free_lst[id>>2] |= (state&mask);
+        map.free_lst[id>>2] |= ((state&3)<<((id&3)<<1));
     }
 }
 
@@ -32,12 +47,13 @@ signed short get_free_id(unsigned char state)
 {
     int id;
 
-    for (id=4; id<=65535; id++) {
+    for (id=4; id<=(1<<15)-1; id++) {
         if (UNOCCUPIED == get_state(id)) {
             set_state(id, state);
             return id;
         }
     }
+    fprintf(stderr, "Error: failed to get free ID.\n");
     return -1;
 }
 
@@ -45,14 +61,11 @@ void set_free_id(signed short id)
 {
     if (id >= 4) {
         set_state(id, UNOCCUPIED);
+    } else {
+        fprintf(stderr, "Error: cannot set free zone %hi.\n", id);
     }
 }
 
-#define CACHE_SIZE 8
-#define CACHE_GRP_SZ 2
-#define CACHE_GRP_NUM (CACHE_SIZE/CACHE_GRP_SZ)
-
-static block_t *b_cache[CACHE_SIZE] = {};
 
 static void free_cache(void)
 {
@@ -65,9 +78,6 @@ static void free_cache(void)
         }
     }
 }
-
-#define get_c(id) (((id)*ZONESIZE/BLOCKSIZE) / SECTORS)
-#define get_s(id) (((id)*ZONESIZE/BLOCKSIZE) % SECTORS)
 
 static block_t *get_block(unsigned short id)
 {
@@ -102,36 +112,13 @@ static block_t *get_block(unsigned short id)
 void format(void)
 {
     block_t block;
-    
+
+    block.c = block.s = 0;
     bzero((char*)&block, BLOCKSIZE);
     write_block(sock, &block);
     bzero((char*)&map, 256);
     set_state(4, D_OCCUPIED);
-}
-
-static void read_map(void)
-{
-    block_t *block = get_block(0);
-    unsigned char *byte;
-    int idx = 0;
-
-    byte = (unsigned char*)block;
-    while (idx < 256) {
-        map.free_lst[idx++] = *(byte++);
-    }
-}
-
-static void write_map(void)
-{
-    block_t *block = get_block(0);
-    unsigned char *byte;
-    int idx = 0;
-
-    byte = (unsigned char*)block;
-    while (idx < 256) {
-        *(byte++) = map.free_lst[idx++];
-    }
-    write_block(sock, block);
+    free_cache();
 }
 
 void alloc_init(int port_no)
@@ -141,46 +128,48 @@ void alloc_init(int port_no)
         perror("failed to get client socket from disk server");
         exit(1);
     } else {
-        read_map();
+        block_t *block = get_block(0);
+
+        memcpy(map.free_lst, (char*)block, sizeof(map.free_lst));
     }
 }
 
 void alloc_final(void)
 {
-    write_map();
-    free_cache();
+    block_t *block = get_block(0);
+
+    memcpy((char*)block, map.free_lst, sizeof(map.free_lst));
+    write_block(sock, block);
     do {
         send_msg(sock, "E");
     } while (strcmp(get_msg(sock), "BYE"));
     free_sock(sock);
+    free_cache();
 }
 
 zone_t *read_zone(signed short id)
 {
     if (id < 4) {
+        fprintf(stderr, "Error: cannot read zone %d.\n", id);
         return NULL;
     } else {
-        block_t *block = get_block(id);
-        int offset = id % (BLOCKSIZE/ZONESIZE);
+        zone_t *b_zone = (zone_t*) get_block(id);
+        signed short offset = id % (BLOCKSIZE/ZONESIZE);
 
-        return (zone_t*)block+offset;
+        return b_zone+offset;
     }
 }
 
-void write_zone(signed short id, zone_t *zone)
+void write_zone(signed short id, zone_t *src)
 {
-    if (id >= 4 && NULL != zone) {
+    if (id < 4 || NULL == src) {
+        fprintf(stderr, "Error: failed to read zone %d.\n", id);
+    } else {
         block_t *block = get_block(id);
-        int offset = id % (BLOCKSIZE/ZONESIZE);
+        zone_t *dest = (zone_t*) block;
+        signed short offset = id % (BLOCKSIZE/ZONESIZE);
 
-        if (zone != (zone_t*)block+offset) {
-            char *src = (char*)zone;
-            char *dest = (char*)((zone_t*)block+offset);
-
-            while (src < (char*)(zone+1)) {
-                *(dest++) = *(src++);
-            }
-        }
+        memcpy((char*)(dest+offset), (char*)src, sizeof(zone_t));
         write_block(sock, block);
     }
 }

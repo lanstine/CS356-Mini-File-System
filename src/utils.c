@@ -1,12 +1,12 @@
 #include "utils.h"
 
 
-static void itoa(char *str, int val)
+void itoa(char *str, long val)
 {
     if (0 == val) {
         strcat(str, "0");
     } else {
-        char digs[10];
+        char digs[20];
         int len = 0, pos;
 
         if (val < 0) {
@@ -186,7 +186,7 @@ void cat_str(buf_sock *sock, char *str)
     }
 }
 
-void cat_int(buf_sock *sock, int val)
+void cat_int(buf_sock *sock, long val)
 {
     itoa(sock->buffer, val);
 }

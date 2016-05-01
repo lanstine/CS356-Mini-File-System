@@ -184,7 +184,6 @@ int main(int argc, char *argv[])
 {
     if (argc < 2) {
         fprintf(stderr, "Usage: bin/disk_mgr <DISK_SERVER_PORT_NO>\n");
-        exit(0);
     } else {
         disk_init();
         sock = gen_server_sock(atoi(argv[1]));
