@@ -30,6 +30,13 @@ A Mini File System based on a pseudo disk manager, where the "disk" is simulated
 
 ## Test Script
 
+(1) Run "./bin/disk_mgr 10356" to start the disk manager.
+
+(2) Run "./bin/server 10356 10357" to start the file system server.
+
+(3) Run "./bin/client 10357" to start the file system client.
+
+
 ![test](doc/test_script.png)
 
 
@@ -48,14 +55,14 @@ Each disk block (512 bytes) is divided into 8 64-byte zones, and there are five 
 
 (3) An inode is the core of a file, through which we can get access to its data blocks.
 
-(4) A data\_zone stores 64 bytes of data, the content of a file.
+(4) A data\_zone stores 64 bytes of data, namely the content of a file.
 
-(5) An idx\_zone stores 32 pointers to other idx\_zones or data\_zones.
+(5) An idx\_zone stores 32 pointers that point to other idx\_zones or data\_zones.
 
 ![Structures](doc/struct.jpg)
 
-The first 4 zones of the first disk block is liable to keep track of the usage of all the disk zones, which constitutes a "bitmap". 
-The usage of any zone on the remaining part of the disk is indicated by two bits in bitmap, namely four different states.
+The first 4 zones of the first disk block is liable to keep track of the usage of all the disk zones, which constitute a "bitmap". 
+The usage of any zone on the remaining part of the disk is indicated by two bits in bitmap, and hence a zone may have four possible states.
 
 
 ## Socket Communication Protocols
