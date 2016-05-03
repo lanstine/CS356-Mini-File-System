@@ -214,12 +214,11 @@ static unsigned char append(char *file_path, char *str)
 
 static unsigned char wrt(char *file_path, char *str)
 {
-    char file_path_1[64], file_path_2[64];
+    char f_path_cpy[64];    /* mk_file would call rm_name */
     path_t *path;
 
-    file_path_1[0] = file_path_2[0] = '\0';
-    strcpy(file_path_1, file_path);
-    strcpy(file_path_2, file_path);
+    f_path_cpy[0] = '\0';
+    strcpy(f_path_cpy, file_path);
     path = get_path(file_path);
     if (NULL != path) {
         signed short id = path->id;
@@ -231,7 +230,7 @@ static unsigned char wrt(char *file_path, char *str)
             return 1;
         }
     }
-    return mk_file(file_path_1) || append(file_path_2, str);
+    return mk_file(f_path_cpy) || append(file_path, str);
 }
 
 static unsigned char change(char *dir_path)
