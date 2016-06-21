@@ -1,7 +1,6 @@
-# CS356-Mini-File-System
+# Emulational File System
 
-A Mini File System based on a pseudo disk manager, where the "disk" is simulated by a 20 MB Linux file.
-
+A Mini File System based on a pseudo disk manager, where the "disk" is simulated by a 20 MB Ext4 file.
 
 ## Contents
 
@@ -65,7 +64,7 @@ The first 4 zones of the first disk block is liable to keep track of the usage o
 The usage of any zone on the remaining part of the disk is indicated by two bits in bitmap, and hence a zone may have four possible states.
 
 
-## Socket Communication Protocols
+## Socket Communications
 
 (1) Query about Disk Info:
 
@@ -119,11 +118,11 @@ The usage of any zone on the remaining part of the disk is indicated by two bits
     -1: Command is invalid.
 
 
-BTW, I have a similar socket programming project [here](https://github.com/DevinZ1993/Notebook-of-SJTU/tree/master/courses/FTP), 
+BTW, I have a similar socket programming project [here](https://github.com/DevinZ1993/Pieces-of-Code/tree/master/projects/ftp), 
 which is an FTP client-server system written in Java.
 
 
-## Some Limitations
+## Some Limits
 
 (1) The disk size is limited to 20 Megabytes, and could hardly be scaled up due to the current design of bitmap.
 
