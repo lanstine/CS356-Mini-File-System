@@ -1,4 +1,4 @@
-# Emulational File System
+# Mini File System
 
 A Mini File System based on a pseudo disk manager, where the "disk" is simulated by a 20 MB Ext4 file.
 
@@ -126,7 +126,7 @@ which is an FTP client-server system written in Java.
 
 (1) The disk size is limited to 20 Megabytes, and could hardly be scaled up due to the current design of bitmap.
 
-(2) The name of a file or directory could not be longer than 9 characters, and should no include any whitespaces.
+(2) The name of a file or directory could not be longer than 9 characters, and cannot include any whitespaces.
 
 (3) The maxium size of a file is 136447 characters, which may not live up to real-world requirements.
 
