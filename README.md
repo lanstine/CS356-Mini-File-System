@@ -124,7 +124,9 @@ which is an FTP client-server system written in Java.
 
 ## Some Limits
 
-(1) The disk size is limited to 20 Megabytes, and could hardly be scaled up due to the current design of bitmap.
+(0) This FS design is AWFUL!!! Same i-node format should have been used for both regular files and directories in that a directory is only a special file whose data blocks are dentries. (I should have referred to S5FS, but I didn't... Orz)
+
+(1) A free list like the one in S5FS should have been maintained, rather than the bitmap that I'm currently using. Now the disk size is restricted to 20 MB and could hardly be scaled up.
 
 (2) The name of a file or directory could not be longer than 9 characters, and cannot include any whitespaces.
 
@@ -132,6 +134,5 @@ which is an FTP client-server system written in Java.
 
 (4) Whitespaces could not be written into a file, in that the interpreter of the server would separate it into tokens.
 
-(5) The content of a directory is not orderly stored, and an "ls" command could only get unsorted results.
-
+(5) No index has been provided to accelerate look-ups in a directory.
 
