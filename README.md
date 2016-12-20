@@ -1,33 +1,14 @@
 # Mini File System
 
-A Mini File System based on a pseudo disk manager, where the "disk" is simulated by a 20 MB Ext4 file.
+A Mini File System based on a pseudo disk manager, where the "disk" is simulated by a 20 MB ext4 file.
 
-## Contents
+## Big Picture
 
-	.
-	├── bin
-	├── data
-	│   └── DISK_FILE
-	├── LICENSE
-	├── Makefile
-	├── README.md
-	└── src
-		├── alloc.c
-		├── alloc.h
-		├── client.c
-		├── disk_mgr.c
-		├── disk_test.c
-		├── format.c
-		├── fs_header.h
-		├── fs_lib.c
-		├── path.c
-		├── path.h
-		├── server.c
-		├── utils.c
-		└── utils.h
+![Architecture](doc/arch.jpg)
 
+## Build and Run
 
-## Test Script
+(0) To build, simply type "make" in the top directory.
 
 (1) Run "./bin/disk_mgr 10356" to start the disk manager.
 
@@ -37,12 +18,6 @@ A Mini File System based on a pseudo disk manager, where the "disk" is simulated
 
 
 ![test](doc/test_script.png)
-
-
-## Big Picture
-
-![Architecture](doc/arch.jpg)
-
 
 ## Data Structures
 
